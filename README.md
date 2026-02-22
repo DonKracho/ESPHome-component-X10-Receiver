@@ -2,22 +2,24 @@
 
 # ESPHome X10 Remote Receiver
 
+You want to trigger HomeAssistant automations in an old fashioned way via a remote controller? This may be the solution.
 There are several X10 RF remotes available. The most popular may be the Medion DIGITAINER remote from about 2000.
 While most remote controls use IR signals the X10 remotes are sending 433MHz (70m ISM band) ASK signals with 20 bit codes.
-This usually requires a dedicated USB-receiver.
+This usually requires a dedicated USB-receiver. The advantage of a RF transmission is, that the receiver has not to be in sight.
+The signal even gets through walls
 
 <img src="docs/digitaner_remote.jpg" alt="DIGITAINER Remote">
 
-First I tried IRMP library, which supports X10 RF protocolls since version 3, but had not succes in decodeing the signals.
-Thefore this is a slightly modified code derived from my prooved [433MHz-Sensor-Hub](https://github.com/DonKracho/ESPHome-component-433MHz-Sensor-Hub).
+First I tried the great [IRMP](https://github.com/IRMP-org/IRMP) library, which supports X10 RF protocol since version 3.0.0, but had no succes in decodeing the signals.
+Therefore this is a slightly modified code derived from my prooved [433MHz-Sensor-Hub](https://github.com/DonKracho/ESPHome-component-433MHz-Sensor-Hub).
 
-Currently the DIGITAINER X10 remote is the only one texted, but you can choose between: 
-- "DRY-TEST" emulates a sensor transmission with random remote channels and commands every 10s
+Currently the DIGITAINER X10 remote is the only one tested. You can choose between: 
+- "DRY-TEST" emulates a code transmission with random channel and commands every 10s
 - "DIGITAINER" for the Medion DIGITAINER X10 remote
 - "NEC" for IR Remotes using the NEC protocol.
 
-$§§= MHz is a very noisy band. To avoid erratic RF recepions the code has to be detected twice at least twice, meas you will have to press the remote button for
-at least 0.2s.
+The 70m ISM band is a very noisy band. To avoid erratic RF receptions the code has to be detected at least twice, means you will have to press the remote button for
+minimal 0.2s.
 
 As additional hardware you will need an 433MHz AM receiver for generating pin interrupts.
 It is strongly recommended to use a Superheterodyne 433MHz RF module like the 3400RF, RXB6 or RXB12.
@@ -38,7 +40,7 @@ Wiring diagram:
 
 A HomeAssitant automation example for toggling switches by number keys when EPG is active:
 Automation X10-Remote:
-'''
+```
 alias: X10-Receiver
 description: ""
 triggers:
@@ -55,10 +57,10 @@ actions:
     data:
       number: "{{ states('sensor.x10_receiver_command_name') }}"
 mode: single
-'''
+```
 
 Script wohnzimmerlicht_nummer_umschalten:
-'''
+```
 fields:
   number:
     name: Nummer
@@ -108,5 +110,4 @@ sequence:
             data: {}
 alias: Wohnzimmerlicht Nummer umschalten
 description: ""
-
-'''
+```
