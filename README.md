@@ -11,6 +11,8 @@ The RF signal even gets through walls.
 
 <img src="docs/digitaner_remote.jpg" alt="DIGITAINER Remote">
 
+The [Pollin X10 Manual](docs/Pollin-D721815-B.pdf) explains how to change the channel of this remote. B.t.w. www.pollin.de is a very cheap resource for this remote, refer to article number 721815.
+
 First I tried the great [IRMP](https://github.com/IRMP-org/IRMP) library, which supports the X10 RF protocol since version 3.0.0, but I had no succes in decoding the signals. Therefore this is a slightly modified code derived from my prooved [433MHz-Sensor-Hub](https://github.com/DonKracho/ESPHome-component-433MHz-Sensor-Hub).
 
 Currently the DIGITAINER X10 remote is the only one tested. You can choose between: 

@@ -220,34 +220,12 @@ private:
 void TXDecoder::Loop()
 {
   static byte LastBeg = MAX_CODES;
+  // store all values from ISR and reset dataReady
   bool decode = dataReady;
-  byte rec_cnt = 1;
-  byte beg = CodeBeg;
-  byte end = CodeEnd;
+  uint8_t hist_cnt = (cfg.Tx.Type == TX_DIGITAINER) ? 2 : 1;
+  uint8_t beg = CodeBeg;
+  uint8_t end = CodeEnd;
   dataReady = false;
-
-  if (cfg.Tx.Type == TX_DIGITAINER) {  // catch more tha one sequence
-    rec_cnt = 3;
-    static uint64_t lastDataReady = 0;
-    static bool recvData = false;
-    uint64_t time_us = micros();
-    if (decode) {
-      if (LastBeg != CodeBeg) {
-        LastBeg = beg;
-        recvData = true;
-      }
-      lastDataReady = time_us;
-      decode = false; // wait for transfer burst to be finished
-    }
-    else {
-      decode = (time_us - lastDataReady > 200000ul) && recvData; // wait for 0.5 seconds analyzing the data
-      if (decode) {
-        recvData = false;
-        beg = LastBeg;
-        LastBeg = MAX_CODES;
-      }
-    }
-  }
 
   if (decode)
   {
@@ -266,10 +244,9 @@ void TXDecoder::Loop()
       beg = CodesIndexIncrement(beg);
     } while (beg != end);
 
-    
     hist.getMaxCount();
     ESP_LOGD(TAG, "MaxOccur: 0x%s %2d %2d ", String((unsigned long)hist.data.value, 16).c_str(), hist.size, hist.data.count);
-    if (hist.data.count >= rec_cnt) {
+    if (hist.data.count >= hist_cnt) {
       struct rec data;
       if (DecodeRecord(hist.data.value, data)) {
         StoreRecord(data);
@@ -287,7 +264,7 @@ void TXDecoder::Loop()
     if (hist.size - hist.data.count >= 2) {
       hist.getMaxCountExcludeValue(hist.data.value);
       ESP_LOGD(TAG, "TxSecond: 0x%s %2d %2d ", String((unsigned long)hist.data.value, 16).c_str(), hist.size, hist.data.count);
-      if (hist.data.count >= rec_cnt) {
+      if (hist.data.count >= hist_cnt) {
         struct rec data;
         if (DecodeRecord(hist.data.value, data)) {
           StoreRecord(data);
